@@ -2,7 +2,7 @@ type ThreadCategory = "THREAD" | "QNA";
 
 type User = {
 	userName: string;
-	password: string
+	password?: string
 }
 
 type Thread = {
@@ -13,6 +13,7 @@ type Thread = {
 	description: string;
 	creator: User;
 	commentCount: number;
+	locked?: boolean;
 }
 
 type QNAThread =  Thread & { //Type extension

@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import CommentCard from "./commentCard";
+import { useUser } from '@clerk/nextjs';
 
 
 type CommentsSectionProps = {
@@ -13,6 +14,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ threadId, initialComm
   const [comments, setComments] = useState<ThreadComment[]>(initialComments);
   const [commentContent, setCommentContent] = useState("");
   const [error, setError] = useState<string | null>(null); 
+  const { user } = useUser();
 
   const handleAddComment = () => {
     // Validate the comment content
@@ -25,7 +27,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ threadId, initialComm
       id: Date.now(),
       thread: threadId,
       content: commentContent,
-      creator: { userName: "guest", password: "password" }, // Placeholder user
+      creator: { userName: user?.username || "Unknown User" }, // Use the logged-in user's username
       creationDate: new Date().toISOString(), 
     };
   

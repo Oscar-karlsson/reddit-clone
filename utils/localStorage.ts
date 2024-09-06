@@ -12,7 +12,11 @@ export const getThreadsFromLocalStorage = (): Thread[] => {
 
     return parsedThreads.map(thread => {
       const commentCount = allComments.filter(comment => comment.thread === thread.id).length;
-      return { ...thread, commentCount }; // Add commentCount to each thread
+      return { 
+        ...thread, 
+        commentCount,
+        locked: thread.locked ?? false, // Ensure locked property is set (default to false)
+      };
     });
   }
   return [];
@@ -39,5 +43,16 @@ export const saveCommentToLocalStorage = (comment: ThreadComment): void => {
     const allComments = comments ? JSON.parse(comments) : [];
     allComments.push(comment);
     localStorage.setItem(COMMENTS_KEY, JSON.stringify(allComments));
+  }
+};
+
+
+export const updateThreadLockStatus = (threadId: number, locked: boolean): void => {
+  if (typeof window !== 'undefined') {
+    const threads = getThreadsFromLocalStorage();
+    const updatedThreads = threads.map(thread => 
+      thread.id === threadId ? { ...thread, locked } : thread
+    );
+    saveThreadsToLocalStorage(updatedThreads);
   }
 };

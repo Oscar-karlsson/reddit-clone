@@ -19,7 +19,7 @@ const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
         <p className="text-xs font-bold text-gray-600 mb-1">r/{thread.category}</p>
         
         <div className="flex items-center text-xs text-gray-500 mb-2">
-          <span>u/Username</span>
+        <span>u/{thread.creator.userName}</span>
           <span className="mx-1">•</span>
           <span>{formatDistanceToNow(new Date(thread.creationDate))} ago</span>
         </div>

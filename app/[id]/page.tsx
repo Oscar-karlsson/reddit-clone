@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import ThreadDetailHeader from "@/components/threadDetailHeader";
 import CommentsSection from "@/components/commentsSection";
+import LockedThreadMessage from "./LockedThreadMessage";
 
 const ThreadPage = () => {
   const { id } = useParams();
