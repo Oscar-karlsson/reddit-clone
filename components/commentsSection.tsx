@@ -3,14 +3,14 @@ import { useState } from "react";
 import CommentCard from "./commentCard";
 import { useUser } from '@clerk/nextjs';
 
-
 type CommentsSectionProps = {
   threadId: number;
   initialComments: ThreadComment[];
   onAddComment: (comment: ThreadComment) => void;
+  showInput: boolean; // New prop to control visibility of comment input
 };
 
-const CommentsSection: React.FC<CommentsSectionProps> = ({ threadId, initialComments, onAddComment }) => {
+const CommentsSection: React.FC<CommentsSectionProps> = ({ threadId, initialComments, onAddComment, showInput }) => {
   const [comments, setComments] = useState<ThreadComment[]>(initialComments);
   const [commentContent, setCommentContent] = useState("");
   const [error, setError] = useState<string | null>(null); 
@@ -45,19 +45,27 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ threadId, initialComm
           <CommentCard key={comment.id} comment={comment} /> 
         ))}
       </ul>
-      <textarea
-        placeholder="Add a comment"
-        value={commentContent}
-        onChange={(e) => setCommentContent(e.target.value)}
-        className="w-full border rounded p-2 mt-4 text-black"
-      />
-       {error && <p className="text-red-500">{error}</p>} {/* Display error if it exists */}
-      <button
-        onClick={handleAddComment}
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-      >
-        Add Comment
-      </button>
+
+      {/* Conditionally show the comment input based on showInput prop */}
+      {showInput ? (
+        <>
+          <textarea
+            placeholder="Add a comment"
+            value={commentContent}
+            onChange={(e) => setCommentContent(e.target.value)}
+            className="w-full border rounded p-2 mt-4 text-black"
+          />
+          {error && <p className="text-red-500">{error}</p>} {/* Display error if it exists */}
+          <button
+            onClick={handleAddComment}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Add Comment
+          </button>
+        </>
+      ) : (
+        <p className="text-gray-500 mt-4">Comments are disabled because this thread is locked.</p>
+      )}
     </div>
   );
 };
