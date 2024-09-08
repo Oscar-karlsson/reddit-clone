@@ -28,4 +28,5 @@ type ThreadComment = {
 	content: string;
 	creator: User
 	creationDate: string;
+	parentCommentId?: number;
 }
