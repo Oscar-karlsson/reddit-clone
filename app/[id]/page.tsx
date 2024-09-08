@@ -80,12 +80,13 @@ const ThreadPage = () => {
 
       {/* Comments section */}
       <div ref={commentsRef}>
-        <CommentsSection 
-          threadId={thread.id} 
-          initialComments={comments} 
-          onAddComment={handleAddComment} 
-          showInput={!thread.locked}  // Hide input if thread is locked
-        />
+      <CommentsSection 
+  threadId={thread.id}
+  initialComments={comments}
+  onAddComment={handleAddComment}
+  showInput={!thread.locked}
+  threadCreatorUserName={thread.creator.userName}  // Pass the post creator's username
+/>
       </div>
     </div>
   );

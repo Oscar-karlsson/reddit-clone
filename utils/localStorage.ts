@@ -41,7 +41,11 @@ export const saveCommentToLocalStorage = (comment: ThreadComment): void => {
   if (typeof window !== 'undefined') {
     const comments = localStorage.getItem(COMMENTS_KEY);
     const allComments = comments ? JSON.parse(comments) : [];
+    
+    // Add the new comment/reply
     allComments.push(comment);
+    
+    // Save the updated comments array back to local storage
     localStorage.setItem(COMMENTS_KEY, JSON.stringify(allComments));
   }
 };
