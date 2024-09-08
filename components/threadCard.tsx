@@ -1,15 +1,19 @@
-
 'use client';
 
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { FaRegCommentAlt } from "react-icons/fa";
+import { censorText } from '@/utils/censor';  // Import the censorText function
 
 interface ThreadCardProps {
   thread: Thread;
 }
 
 const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
+  // Censor the title and description using the censorText function
+  const censoredTitle = censorText(thread.title);
+  const censoredDescription = censorText(thread.description);
+
   return (
     <li>
       <Link 
@@ -19,15 +23,21 @@ const ThreadCard: React.FC<ThreadCardProps> = ({ thread }) => {
         <p className="text-xs font-bold text-gray-600 mb-1">r/{thread.category}</p>
         
         <div className="flex items-center text-xs text-gray-500 mb-2">
-        <span>u/{thread.creator.userName}</span>
+          <span>u/{thread.creator.userName}</span>
           <span className="mx-1">•</span>
           <span>{formatDistanceToNow(new Date(thread.creationDate))} ago</span>
         </div>
 
-        <h2 className="text-lg font-semibold text-gray-800 transition-colors">
-          {thread.title}
-        </h2>
-        <p className="text-sm text-gray-700 line-clamp-3">{thread.description}</p>
+        {/* Use dangerouslySetInnerHTML for both title and description */}
+        <h2 
+          className="text-lg font-semibold text-gray-800 transition-colors"
+          dangerouslySetInnerHTML={{ __html: censoredTitle }}
+        ></h2>
+        
+        <p 
+          className="text-sm text-gray-700 line-clamp-3"
+          dangerouslySetInnerHTML={{ __html: censoredDescription }}
+        ></p>
         
         <div className="flex items-center text-xs text-gray-500 mt-2">
           <div className="flex items-center justify-center bg-gray-200 rounded-full px-3 py-1.5 hover:bg-gray-400 transition-colors">

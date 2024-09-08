@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
 import { FaRegCommentAlt } from "react-icons/fa";
 import { BsThreeDots } from 'react-icons/bs';
-import { FaLock } from 'react-icons/fa';
-import { FaTrashAlt } from 'react-icons/fa';
+import { FaLock, FaTrashAlt } from 'react-icons/fa';
+import { censorText } from '@/utils/censor'; // Import censorText function
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,11 +17,15 @@ import {
 type ThreadDetailHeaderProps = {
   thread: Thread;
   onCommentIconClick: () => void;
-  onToggleLock: () => void;  // New prop to handle lock toggle
+  onToggleLock: () => void;
 };
 
 const ThreadDetailHeader: React.FC<ThreadDetailHeaderProps> = ({ thread, onCommentIconClick, onToggleLock }) => {
   const { user } = useUser(); // Get the current logged-in user
+
+  // Apply the censorText function to both title and description
+  const censoredTitle = censorText(thread.title);
+  const censoredDescription = censorText(thread.description);
 
   return (
     <div className="bg-white border border-gray-300 p-4 rounded-lg shadow-sm mb-6 relative">
@@ -37,10 +41,10 @@ const ThreadDetailHeader: React.FC<ThreadDetailHeaderProps> = ({ thread, onComme
               <DropdownMenuSeparator />
               <DropdownMenuItem 
                 className="cursor-pointer px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 hover:text-black"
-                onClick={onToggleLock}  // Trigger the lock/unlock action
+                onClick={onToggleLock} 
               >
                 <FaLock className="mr-2 text-gray-600" />
-                {thread.locked ? 'Unlock Thread' : 'Lock Thread'}  {/* Dynamic text */}
+                {thread.locked ? 'Unlock Thread' : 'Lock Thread'}
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700">
                 <FaTrashAlt className="mr-2 text-red-600" />
@@ -57,10 +61,12 @@ const ThreadDetailHeader: React.FC<ThreadDetailHeaderProps> = ({ thread, onComme
         <span>{formatDistanceToNow(new Date(thread.creationDate))} ago</span>
       </div>
 
-      <h2 className="text-lg font-semibold text-gray-800 transition-colors mb-2">
-        {thread.title}
-      </h2>
-      <p className="text-sm text-gray-700">{thread.description}</p>
+      {/* Use dangerouslySetInnerHTML to render censored title and description */}
+      <h2 className="text-lg font-semibold text-gray-800 transition-colors mb-2"
+          dangerouslySetInnerHTML={{ __html: censoredTitle }}></h2>
+
+      <p className="text-sm text-gray-700"
+         dangerouslySetInnerHTML={{ __html: censoredDescription }}></p>
 
       <div className="flex items-center text-xs text-gray-500 mt-2">
         <div className="flex items-center justify-center bg-gray-200 rounded-full px-3 py-1.5 hover:bg-gray-400 transition-colors cursor-pointer"
