@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { FaRegCommentAlt, FaPlus, FaMinus } from "react-icons/fa";
+import { CiCirclePlus, CiCircleMinus  } from "react-icons/ci";
 import { saveCommentToLocalStorage } from "@/utils/localStorage";
 import { censorText } from "@/utils/censor"; 
 
@@ -23,13 +24,28 @@ const CommentCard: React.FC<CommentCardProps> = ({
 }) => {
   const [replyContent, setReplyContent] = useState(""); 
   const [activeReplyCommentId, setActiveReplyCommentId] = useState<number | null>(null);
-  const [areRepliesVisible, setAreRepliesVisible] = useState(true); 
+  const [areRepliesVisible, setAreRepliesVisible] = useState(false); // Hide replies by default
 
   const isOP = comment.creator.userName === threadCreatorUserName;
   const creationDate = comment.creationDate ? new Date(comment.creationDate) : new Date();
 
   // Apply censoring to the comment content
   const censoredContent = censorText(comment.content);
+
+  // Recursive function to calculate total number of replies, including nested ones
+  const getTotalReplyCount = (commentId: number): number => {
+    const directReplies = comments.filter((reply) => reply.parentCommentId === commentId);
+    let totalReplies = directReplies.length;
+
+    directReplies.forEach((reply) => {
+      totalReplies += getTotalReplyCount(reply.id); // Recursively count nested replies
+    });
+
+    return totalReplies;
+  };
+
+  // Get total replies (including nested ones)
+  const totalReplyCount = getTotalReplyCount(comment.id);
 
   const handleAddReply = (parentCommentId: number) => {
     const newReply: ThreadComment = {
@@ -40,13 +56,16 @@ const CommentCard: React.FC<CommentCardProps> = ({
       creationDate: new Date().toISOString(),
       parentCommentId,
     };
-
+  
     // Update state and save to local storage
     setComments([...comments, newReply]);
     saveCommentToLocalStorage(newReply);
-
+  
     setReplyContent("");
     setActiveReplyCommentId(null);
+  
+    // Automatically show replies after adding a new one
+    setAreRepliesVisible(true); // This ensures the replies are visible after submission
   };
 
   return (
@@ -72,7 +91,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
             onClick={() => setActiveReplyCommentId(comment.id)}
             className="flex items-center text-gray-700 text-sm mt-1"
           >
-            <FaRegCommentAlt className="mr-1" /> Reply
+            <FaRegCommentAlt className="mr-1 text-gray-700" /> Reply
           </button>
         )}
 
@@ -95,18 +114,17 @@ const CommentCard: React.FC<CommentCardProps> = ({
         )}
 
         {/* Collapse/Expand Replies */}
-        {comments.filter((reply) => reply.parentCommentId === comment.id).length > 0 && (
+        {totalReplyCount > 0 && (
           <button
             onClick={() => setAreRepliesVisible(!areRepliesVisible)}
-            className="text-gray-500 text-sm mt-1"
+            className="text-gray-500 text-sm mt-1 flex items-center"
           >
             {areRepliesVisible ? (
-              <>
-                <FaMinus className="mr-1" /> Hide Replies
-              </>
+            <CiCircleMinus size={20} className="mr-1" />
             ) : (
               <>
-                <FaPlus className="mr-1" /> Show Replies
+                <CiCirclePlus size={20} className="mr-1" />
+                {totalReplyCount === 1 ? "1 more reply" : `${totalReplyCount} more replies`}
               </>
             )}
           </button>
@@ -115,7 +133,7 @@ const CommentCard: React.FC<CommentCardProps> = ({
 
       {/* Replies */}
       {areRepliesVisible && (
-        <div className="ml-6">
+        <div className="ml-6 p-2">
           {comments
             .filter((reply) => reply.parentCommentId === comment.id)
             .map((reply) => (
