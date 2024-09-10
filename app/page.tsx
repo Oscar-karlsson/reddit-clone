@@ -5,24 +5,27 @@ import { getThreadsFromLocalStorage } from "../utils/localStorage";
 import ThreadCard from "@/components/threadCard";
 import Modal from 'react-modal';
 import CreateThreadForm from "@/components/CreateThreadForm";
-import { useSearch } from '../context/SearchContext';
+import { useSearch } from '../context/SearchContext';  // Same context for both search and tags
 
 const Home = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { searchQuery } = useSearch();
+  const { searchQuery, setAvailableTags } = useSearch(); // Access both search query and available tags
 
   useEffect(() => {
     const storedThreads = getThreadsFromLocalStorage();
     setThreads(storedThreads);
-  }, []);
+
+    // Compute unique tags and set them in the context
+    const uniqueTags = [...new Set(storedThreads.flatMap(thread => thread.tags || []))];
+    setAvailableTags(uniqueTags);
+  }, [setAvailableTags]);
 
   // Filter threads based on search query including tags
-  const filteredThreads = threads.filter(thread =>
-    thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    thread.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (thread.tags && thread.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))) // Check if any tag matches
-  );
+  const filteredThreads = threads.filter(thread => {
+    if (!searchQuery) return true;
+    return thread.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  });
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -64,7 +67,7 @@ const Home = () => {
             &#x2715;
           </button>
         </div>
-        <CreateThreadForm onClose={closeModal} /> {/* Keep this form's title */}
+        <CreateThreadForm onClose={closeModal} />
       </Modal>
     </div>
   );
