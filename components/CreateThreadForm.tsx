@@ -11,14 +11,26 @@ type CreateThreadFormProps = {
   onClose: () => void;
 };
 
+// List of premade tags
+const availableTags = ["Discussion", "Help", "Feedback", "Announcement"];
+
 const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onClose }) => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<ThreadCategory>("THREAD");
   const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const { user } = useUser();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]); 
 
   const router = useRouter();
+
+  const handleTagSelection = (tag: string) => {
+    setSelectedTags((prevTags) =>
+      prevTags.includes(tag)
+        ? prevTags.filter((t) => t !== tag) // Uncheck if already selected
+        : [...prevTags, tag]
+    );
+  };
 
   const handleSubmit = () => {
     if (!title || !description) {
@@ -33,8 +45,9 @@ const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onClose }) => {
       category,
       creationDate: new Date().toISOString(),
       description,
-      creator: { userName: user?.username || "Unknown User" }, // Use the logged-in user's username
+      creator: { userName: user?.username || "Unknown User" },
       commentCount: 0,
+      tags: selectedTags, // Save selected tags
     };
 
     threads.push(newThread);
@@ -105,6 +118,24 @@ const CreateThreadForm: React.FC<CreateThreadFormProps> = ({ onClose }) => {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+      </div>
+
+      {/* Tags Section */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">Tags</label>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {availableTags.map((tag) => (
+            <label key={tag} className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                value={tag}
+                checked={selectedTags.includes(tag)}
+                onChange={() => handleTagSelection(tag)}
+              />
+              <span className="text-sm text-gray-700">{tag}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

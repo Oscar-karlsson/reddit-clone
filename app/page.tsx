@@ -1,25 +1,31 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import { getThreadsFromLocalStorage } from "../utils/localStorage";
 import ThreadCard from "@/components/threadCard";
 import Modal from 'react-modal';
 import CreateThreadForm from "@/components/CreateThreadForm";
-
-
+import { useSearch } from '../context/SearchContext';
 
 const Home = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { searchQuery } = useSearch();
 
   useEffect(() => {
     const storedThreads = getThreadsFromLocalStorage();
     setThreads(storedThreads);
   }, []);
 
+  // Filter threads based on search query including tags
+  const filteredThreads = threads.filter(thread =>
+    thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    thread.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (thread.tags && thread.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))) // Check if any tag matches
+  );
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
-
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -31,11 +37,15 @@ const Home = () => {
       </button>
 
       <ul className="space-y-4">
-        {threads
-          .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())
-          .map(thread => (
-            <ThreadCard key={thread.id} thread={thread} />
-          ))}
+        {filteredThreads.length > 0 ? (
+          filteredThreads
+            .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())
+            .map(thread => (
+              <ThreadCard key={thread.id} thread={thread} />
+            ))
+        ) : (
+          <p className="text-gray-500 text-sm">No threads found matching your search query.</p>
+        )}
       </ul>
 
       {/* Modal Component */}

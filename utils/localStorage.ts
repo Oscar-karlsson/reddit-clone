@@ -60,3 +60,11 @@ export const updateThreadLockStatus = (threadId: number, locked: boolean): void 
     saveThreadsToLocalStorage(updatedThreads);
   }
 };
+
+
+
+export function deleteThreadFromLocalStorage(threadId: number) {
+  const storedThreads = getThreadsFromLocalStorage(); // Get all threads
+  const updatedThreads = storedThreads.filter(thread => thread.id !== threadId); // Filter out the deleted thread
+  saveThreadsToLocalStorage(updatedThreads); // Save updated threads back to local storage
+}

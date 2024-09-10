@@ -14,6 +14,7 @@ type Thread = {
 	creator: User;
 	commentCount: number;
 	locked?: boolean;
+	tags: string[];
 }
 
 type QNAThread =  Thread & { //Type extension

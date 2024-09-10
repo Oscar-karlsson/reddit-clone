@@ -1,9 +1,16 @@
+'use client';
 import Link from "next/link";
 import { FiSearch } from 'react-icons/fi';
 import Image from "next/image";
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { useSearch } from "@/context/SearchContext";
 
 const Header = () => {
+  const { setSearchQuery } = useSearch(); // Use the setSearchQuery from the context
+
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value); // Update the search query in context
+  };
     return (
         <header
           className="px-4 py-4 flex justify-between items-center w-full"
@@ -25,10 +32,11 @@ const Header = () => {
         <div className="relative">
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input 
-            type="text" 
-            placeholder="Search" 
-            className="border rounded-full pl-10 pr-3 py-2 w-full text-sm text-white bg-gray-800"
-          />
+  type="text" 
+  placeholder="Search" 
+  className="border rounded-full pl-10 pr-3 py-2 w-full text-sm text-white bg-gray-800"
+  onChange={handleSearchInputChange} 
+/>
         </div>
           </div>
 
