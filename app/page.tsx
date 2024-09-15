@@ -6,6 +6,7 @@ import ThreadCard from "@/components/threadCard";
 import Modal from 'react-modal';
 import CreateThreadForm from "@/components/CreateThreadForm";
 import { useSearch } from '../context/SearchContext';  // Same context for both search and tags
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';  // Clerk's sign-in components
 
 const Home = () => {
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -17,8 +18,10 @@ const Home = () => {
     setThreads(storedThreads);
 
     // Compute unique tags and set them in the context
-    const uniqueTags = [...new Set(storedThreads.flatMap(thread => thread.tags || []))];
-    setAvailableTags(uniqueTags);
+    if (storedThreads) {
+      const uniqueTags = Array.from(new Set(storedThreads.flatMap(thread => thread.tags || [])));
+      setAvailableTags(uniqueTags);
+    }
   }, [setAvailableTags]);
 
   // Filter threads based on search query including tags
@@ -32,12 +35,26 @@ const Home = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <button 
-        onClick={openModal} 
-        className="inline-block mb-4 text-white bg-blue-500 py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-      >
-        Create a New Thread
-      </button>
+      {/* For signed-in users, show the button to create a thread */}
+      <SignedIn>
+        <button 
+          onClick={openModal} 
+          className="inline-block mb-4 text-white bg-blue-500 py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+        >
+          Create a New Thread
+        </button>
+      </SignedIn>
+
+      {/* For signed-out users, show the sign-in button */}
+      <SignedOut>
+        <SignInButton mode="modal">
+          <button 
+            className="inline-block mb-4 text-white bg-blue-500 py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Sign in to Create a Thread
+          </button>
+        </SignInButton>
+      </SignedOut>
 
       <ul className="space-y-4">
         {filteredThreads.length > 0 ? (
@@ -51,7 +68,7 @@ const Home = () => {
         )}
       </ul>
 
-      {/* Modal Component */}
+      {/* Modal Component for creating a new thread */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}
@@ -67,7 +84,7 @@ const Home = () => {
             &#x2715;
           </button>
         </div>
-        <CreateThreadForm onClose={closeModal} />
+        <CreateThreadForm onClose={closeModal} /> {/* Keep this form's title */}
       </Modal>
     </div>
   );

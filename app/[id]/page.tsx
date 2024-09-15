@@ -12,6 +12,7 @@ const ThreadPage = () => {
   const [comments, setComments] = useState<ThreadComment[]>([]);
   const commentsRef = useRef<HTMLDivElement>(null);
 
+  
   useEffect(() => {
     if (id) {
       const storedThreads = getThreadsFromLocalStorage();
@@ -59,9 +60,16 @@ const ThreadPage = () => {
     }
   };
 
+  const Loader = () => (
+    <div className="flex justify-center items-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+    </div>
+  );
+
   if (!thread) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
+  
 
   return (
     <div className="max-w-3xl mx-auto p-4">
@@ -80,6 +88,15 @@ const ThreadPage = () => {
 
       {/* Comments section */}
       <div ref={commentsRef}>
+        {/* Show "Be the first to comment" if no comments are present */}
+        {comments.length === 0 && (
+          <div className="flex flex-col items-center justify-center mt-10">
+            <h2 className="text-xl font-bold mt-4">Be the first to comment</h2>
+            <p className="text-gray-500 mt-2">
+              Nobody's responded to this post yet. Add your thoughts and get the conversation going.
+            </p>
+          </div>
+        )}
       <CommentsSection 
   threadId={thread.id}
   initialComments={comments}
